@@ -9,7 +9,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Id;
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import org.hibernate.annotations.GenericGenerator;
@@ -26,6 +25,7 @@ import java.util.UUID;
 @Table(name = "users")
 public class User {
     
+    @SuppressWarnings("deprecation")
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")

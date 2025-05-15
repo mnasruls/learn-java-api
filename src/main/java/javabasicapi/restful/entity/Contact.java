@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.PrePersist;
@@ -18,6 +19,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -28,6 +30,7 @@ import java.util.UUID;
 @Table(name = "contacts")
 public class Contact {
     
+    @SuppressWarnings("deprecation")
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
@@ -56,6 +59,9 @@ public class Contact {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
+    // @OneToMany(mappedBy = "user")
+    // private List<Contact> contacts;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now(ZoneOffset.UTC);
@@ -67,6 +73,4 @@ public class Contact {
         updatedAt = LocalDateTime.now(ZoneOffset.UTC);
     }
 
-    @OneToMany(mappedBy = "user")
-    private List<Contact> contacts;
 }
