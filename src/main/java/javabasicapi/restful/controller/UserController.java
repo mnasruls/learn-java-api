@@ -3,11 +3,13 @@ package javabasicapi.restful.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javabasicapi.restful.dto.RegisterRequest;
+import javabasicapi.restful.dto.UpdateUserRequest;
 import javabasicapi.restful.dto.UserResponse;
 import javabasicapi.restful.dto.WebResponse;
 import javabasicapi.restful.entity.User;
@@ -36,5 +38,24 @@ public class UserController {
     public WebResponse<UserResponse> getUser(User userContext) {
         var user = userService.findUser(userContext);
         return WebResponse.<UserResponse>builder().data(user).build();
+    }
+
+    @PatchMapping(
+            path = "api/users/me",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public WebResponse<UserResponse> updateUser(User userContext, @RequestBody UpdateUserRequest request) {
+        var user = userService.updateUser(userContext, request);
+        return WebResponse.<UserResponse>builder().data(user).build();
+    }
+
+    @PostMapping(
+            path = "api/logout",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public WebResponse<String> logout(User userContext) {
+        userService.logout(userContext);
+        return WebResponse.<String>builder().data("OK").build();
     }
 }
