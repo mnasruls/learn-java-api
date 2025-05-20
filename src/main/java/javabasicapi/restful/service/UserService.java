@@ -10,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.transaction.Transactional;
 import javabasicapi.restful.dto.RegisterRequest;
+import javabasicapi.restful.dto.UserResponse;
 import javabasicapi.restful.entity.User;
 import javabasicapi.restful.repository.UserRepository;
 import javabasicapi.restful.security.BCrypt;
@@ -39,5 +40,14 @@ public class UserService {
         newUser.setCreatedAt(LocalDateTime.now(ZoneOffset.UTC));
         newUser.setUpdatedAt(LocalDateTime.now(ZoneOffset.UTC));
         userRepository.save(newUser);
+    }
+
+    public UserResponse findUser(User user) {
+        return UserResponse.builder()
+                .username(user.getUsername())
+                .name(user.getName())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .build();
     }
 }

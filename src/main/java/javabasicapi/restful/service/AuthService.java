@@ -35,7 +35,6 @@ public class AuthService {
             user.setToken(UUID.randomUUID().toString());
             user.setTokenExpiredAt(getNext15Days());
             userRepository.save(user);
-            System.out.println(user.getName());
             return TokenResponse.builder()
                     .token(user.getToken())
                     .expiredAt(user.getTokenExpiredAt().toString())
