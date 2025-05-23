@@ -16,7 +16,6 @@ import javabasicapi.restful.pkg.Redis;
 import javabasicapi.restful.repository.UserRepository;
 import javabasicapi.restful.security.JwtUtil;
 
-import java.util.UUID;
 
 @Component
 public class ApiToken implements HandlerMethodArgumentResolver {
@@ -54,24 +53,27 @@ public class ApiToken implements HandlerMethodArgumentResolver {
         if (userId == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token payload");
         }
+
+        String id = jwtUtil.extractId(token);
+        if (id == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token payload");
+        }
         
         // First check if token exists in Redis
-        String redisKey = "token:" + token;
-        String redisUserId = (String) redis.get(redisKey);
+        String redisKey = "token:" + userId;
+        String redisToken = (String) redis.get(redisKey);
         
-        if (redisUserId != null) {
-            // Token found in Redis, get user from database
-            return userRepository.findById(UUID.fromString(redisUserId))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized"));
+        if (!redisToken.equals(token)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
         }
         
         // Fallback to database check if not in Redis
-        User user = userRepository.findById(UUID.fromString(userId))
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized"));
-
+        User user = userRepository.findFirstByToken(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized"));
+        
         // Verify that the token in the database matches
-        if (!token.equals(user.getToken())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token mismatch");
+        if (!userId.equals(user.getId().toString())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
         }
         
         if (user.getTokenExpiredAt() < System.currentTimeMillis()) {
@@ -81,7 +83,7 @@ public class ApiToken implements HandlerMethodArgumentResolver {
         // Store token in Redis for future requests
         long expirationSeconds = (user.getTokenExpiredAt() - System.currentTimeMillis()) / 1000;
         if (expirationSeconds > 0) {
-            redis.save(redisKey, user.getId().toString(), expirationSeconds);
+            redis.save(redisKey, token, expirationSeconds);
         }
         
         return user;

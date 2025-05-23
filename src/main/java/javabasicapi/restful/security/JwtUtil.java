@@ -28,8 +28,9 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(String userId) {
+    public String generateToken(String userId, String id ) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("id", id);
         claims.put("userId", userId);
         return createToken(claims);
     }
@@ -53,6 +54,10 @@ public class JwtUtil {
 
     public String extractUserId(String token) {
         return extractClaim(token, claims -> claims.get("userId", String.class));
+    }
+
+    public String extractId(String token) {
+        return extractClaim(token, claims -> claims.get("id", String.class));
     }
 
     public Date extractExpiration(String token) {

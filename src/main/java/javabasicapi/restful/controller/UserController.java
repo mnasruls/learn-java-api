@@ -50,12 +50,4 @@ public class UserController {
         return WebResponse.<UserResponse>builder().data(user).build();
     }
 
-    @PostMapping(
-            path = "api/logout",
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public WebResponse<String> logout(User userContext) {
-        userService.logout(userContext);
-        return WebResponse.<String>builder().data("OK").build();
-    }
 }

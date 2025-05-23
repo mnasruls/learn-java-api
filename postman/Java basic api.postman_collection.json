@@ -1,0 +1,543 @@
+{
+	"info": {
+		"_postman_id": "c30a7ab5-a4c8-43eb-b904-2c7358205174",
+		"name": "Java basic api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32139955"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var res = JSON.parse(responseBody);",
+									"console.log(res);",
+									"if (\"data\" in res && res!=null && res.data) {",
+									"    postman.setEnvironmentVariable(\"token\", res.data.token);",
+									"    postman.setEnvironmentVariable(\"refresh_token\", res.data.refresh_token);",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"password\":\"1234567\",\n    \"username\":\"kack\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/login",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get me",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:8080/api/users/me",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"users",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"Jack lahuna\",\n    \"password\":\"1234567\",\n    \"username\":\"kack\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/register",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:8080/api/logout",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update user",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "x-api-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    // \"name\":\"Jack lahuna\",\n    \"password\":\"12345678\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/users/me",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"users",
+								"me"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Contact api",
+			"item": [
+				{
+					"name": "Create contact",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\":\"alisa\", \n    \"lastName\":\"naon\",\n    \"phone\":\"6289342134\",\n    \"email\":\"jackal@gmail.comn\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/contacts",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"contacts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get contact",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:8080/api/contacts/:contactId",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"contacts",
+								":contactId"
+							],
+							"variable": [
+								{
+									"key": "contactId",
+									"value": "aff17508-f54b-4e00-8059-b5b79b4463f7"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Contact",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:8080/api/contacts?name=alo&phone&email&page=1&size=10",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"contacts"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "alo"
+								},
+								{
+									"key": "phone",
+									"value": null
+								},
+								{
+									"key": "email",
+									"value": null
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit contact",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-api-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\":\"alisa\"\n    // \"lastName\":\"Xabi\",\n    // \"phone\":\"6289234523452345\",\n    // \"email\":\"jack@gmail.comn\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/contacts/:contactId",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"contacts",
+								":contactId"
+							],
+							"variable": [
+								{
+									"key": "contactId",
+									"value": "aff17508-f54b-4e00-8059-b5b79b4463f7"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit contact Copy",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-api-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:8080/api/contacts/:contactId",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"contacts",
+								":contactId"
+							],
+							"variable": [
+								{
+									"key": "contactId",
+									"value": "aff17508-f54b-4e00-8059-b5b79b4463f7"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Addresses",
+			"item": [
+				{
+					"name": "Create address",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"contactId\":\"d83cf31d-e229-4e7c-8646-9bdfd33d26d2\",\n    \"street\":\"jl berenang\",\n    \"city\":\"kokop\",\n    \"province\":\"jekarde\",\n    \"country\":\"konoha\",\n    \"postalCode\":\"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/addresses",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"addresses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get address",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"contactId\":\"d83cf31d-e229-4e7c-8646-9bdfd33d26d2\",\n    \"street\":\"jl berenang\",\n    \"city\":\"kokop\",\n    \"province\":\"jekarde\",\n    \"country\":\"konoha\",\n    \"postalCode\":\"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/addresses/:contactId/:addressId",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"addresses",
+								":contactId",
+								":addressId"
+							],
+							"variable": [
+								{
+									"key": "contactId",
+									"value": "d83cf31d-e229-4e7c-8646-9bdfd33d26d2"
+								},
+								{
+									"key": "addressId",
+									"value": "fc41e7b0-6726-4766-976d-5b4107dc7020"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete adress",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-api-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"contactId\":\"d83cf31d-e229-4e7c-8646-9bdfd33d26d2\",\n    \"street\":\"jl berenang\",\n    \"city\":\"kokop\",\n    \"province\":\"jekarde\",\n    \"country\":\"konoha\",\n    \"postalCode\":\"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/addresses/:contactId/:addressId",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"addresses",
+								":contactId",
+								":addressId"
+							],
+							"variable": [
+								{
+									"key": "contactId",
+									"value": "d83cf31d-e229-4e7c-8646-9bdfd33d26d2"
+								},
+								{
+									"key": "addressId",
+									"value": "fc41e7b0-6726-4766-976d-5b4107dc7020"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list addresses",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"contactId\":\"d83cf31d-e229-4e7c-8646-9bdfd33d26d2\",\n    \"street\":\"jl berenang\",\n    \"city\":\"kokop\",\n    \"province\":\"jekarde\",\n    \"country\":\"konoha\",\n    \"postalCode\":\"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/addresses/:contactId",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"addresses",
+								":contactId"
+							],
+							"variable": [
+								{
+									"key": "contactId",
+									"value": "d83cf31d-e229-4e7c-8646-9bdfd33d26d2"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
