@@ -12,12 +12,22 @@ import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import javabasicapi.restful.entity.User;
+import javabasicapi.restful.pkg.Redis;
 import javabasicapi.restful.repository.UserRepository;
+import javabasicapi.restful.security.JwtUtil;
+
+import java.util.UUID;
 
 @Component
 public class ApiToken implements HandlerMethodArgumentResolver {
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private Redis redis;
+    
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -27,17 +37,53 @@ public class ApiToken implements HandlerMethodArgumentResolver {
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
             NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-                HttpServletRequest httpRequest = (HttpServletRequest) webRequest.getNativeRequest();
-                String token = httpRequest.getHeader("X-API-TOKEN");
-                if (token == null) {
-                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-                }
-                User user = userRepository.findFirstByToken(token)
-                    .orElseThrow(() ->new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized")) ;
+        HttpServletRequest httpRequest = (HttpServletRequest) webRequest.getNativeRequest();
+        String token = httpRequest.getHeader("X-API-TOKEN");
+        
+        if (token == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+        
+        // Validate JWT token
+        if (!jwtUtil.validateToken(token)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired token");
+        }
+        
+        // Extract user ID from JWT
+        String userId = jwtUtil.extractUserId(token);
+        if (userId == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token payload");
+        }
+        
+        // First check if token exists in Redis
+        String redisKey = "token:" + token;
+        String redisUserId = (String) redis.get(redisKey);
+        
+        if (redisUserId != null) {
+            // Token found in Redis, get user from database
+            return userRepository.findById(UUID.fromString(redisUserId))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized"));
+        }
+        
+        // Fallback to database check if not in Redis
+        User user = userRepository.findById(UUID.fromString(userId))
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized"));
 
-                if (user.getTokenExpiredAt() < System.currentTimeMillis()) {
-                        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-                    }
-                return user;
+        // Verify that the token in the database matches
+        if (!token.equals(user.getToken())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token mismatch");
+        }
+        
+        if (user.getTokenExpiredAt() < System.currentTimeMillis()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token expired");
+        }
+        
+        // Store token in Redis for future requests
+        long expirationSeconds = (user.getTokenExpiredAt() - System.currentTimeMillis()) / 1000;
+        if (expirationSeconds > 0) {
+            redis.save(redisKey, user.getId().toString(), expirationSeconds);
+        }
+        
+        return user;
     }
 }

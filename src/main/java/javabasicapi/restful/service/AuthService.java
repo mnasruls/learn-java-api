@@ -1,7 +1,5 @@
 package javabasicapi.restful.service;
 
-import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -10,8 +8,10 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.transaction.annotation.Transactional;
 import javabasicapi.restful.dto.LoginRequest;
 import javabasicapi.restful.dto.TokenResponse;
+import javabasicapi.restful.pkg.Redis;
 import javabasicapi.restful.repository.UserRepository;
 import javabasicapi.restful.security.BCrypt;
+import javabasicapi.restful.security.JwtUtil;
 
 @Service
 public class AuthService {
@@ -20,6 +20,12 @@ public class AuthService {
 
     @Autowired
     private ValidationService validationService;
+    
+    @Autowired
+    private Redis redis;
+    
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Transactional
     public TokenResponse login(LoginRequest request) {
@@ -32,26 +38,34 @@ public class AuthService {
 
         // compare password
         if (BCrypt.checkpw(request.getPassword(), user.getPassword())) {
-            user.setToken(UUID.randomUUID().toString());
-            user.setTokenExpiredAt(getNext15Days());
+            // Generate JWT token
+            String token = generateToken(user.getId().toString());
+            Long expiredAt = System.currentTimeMillis() + jwtUtil.getExpirationTimeInMillis();
+            
+            // Update user entity
+            user.setToken(token);
+            user.setTokenExpiredAt(expiredAt);
             userRepository.save(user);
+            
             return TokenResponse.builder()
-                    .token(user.getToken())
-                    .expiredAt(user.getTokenExpiredAt().toString())
+                    .token(token)
+                    .expiredAt(expiredAt.toString())
                     .refreshToken(null)
-                    .build(
-                   );
+                    .build();
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Username or password is incorrect");
         }
     }
     
-    private Long getNext15Days() {
-        return System.currentTimeMillis() + (15 * 24 * 60 * 60 * 1000);
-    }
-    
-    // this will use redis to save user session
-    // private String generateToken() {
+    // Use JWT to generate token and Redis to store session
+    private String generateToken(String userId) {
+        // Generate JWT token
+        String jwtToken = jwtUtil.generateToken(userId);
         
-    // }
+        // Store in Redis with user ID as value
+        // Use JWT token as key in Redis
+        redis.save("token:" + jwtToken, userId, jwtUtil.getExpirationTimeInMillis() / 1000);
+        
+        return jwtToken;
+    }
 }
