@@ -42,7 +42,8 @@ public class UserService {
         newUser.setUpdatedAt(LocalDateTime.now(ZoneOffset.UTC));
         userRepository.save(newUser);
     }
-
+    
+    @Transactional(readOnly = true)
     public UserResponse findUser(User user) {
         return UserResponse.builder()
                 .username(user.getUsername())
